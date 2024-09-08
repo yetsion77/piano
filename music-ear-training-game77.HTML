@@ -85,7 +85,32 @@
             font-weight: bold;
             color: #4CAF50;
         }
-    </style>
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+.popup.correct {
+    background-color: #4CAF50;
+}
+
+.popup.incorrect {
+    background-color: #f44336;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    10%, 90% { opacity: 1; }
+}
+</style>
 </head>
 <body>
     <div id="game-container">
@@ -345,24 +370,32 @@
                 playScale(currentAnswer.steps, currentAnswer.root, 0, '');
             }
 
-            function checkAnswer(guess) {
-                if (guess === currentAnswer.name) {
-                    score++;
-                    alert('נכון! כל הכבוד!');
-                } else {
-                    alert(`טעות. התשובה הנכונה היתה ${currentAnswer.name}`);
-                }
+           function checkAnswer(guess) {
+    if (guess === currentAnswer.name) {
+        score++;
+        showPopup('נכון! כל הכבוד!', true);
+    } else {
+        showPopup(`טעות. התשובה הנכונה היתה ${currentAnswer.name}`, false);
+    }
 
-                attempt++;
-                if (attempt > 7) {
-                    endGame();
-                    return;
-                }
+    attempt++;
+    updateDisplay();
+}
+function showPopup(message, isCorrect) {
+    const popup = document.createElement('div');
+    popup.className = `popup ${isCorrect ? 'correct' : 'incorrect'}`;
+    popup.textContent = message;
+    document.body.appendChild(popup);
 
-                updateDisplay();
-                setTimeout(generateNewScale, 1500);
-            }
-
+    setTimeout(() => {
+        popup.remove();
+        if (attempt > 7) {
+            endGame();
+        } else {
+            generateNewScale();
+        }
+    }, 2000);
+}
             function updateDisplay() {
                 document.getElementById('attempt').textContent = attempt;
                 document.getElementById('score').textContent = score;
