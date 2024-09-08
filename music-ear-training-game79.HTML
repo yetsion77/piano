@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>זיהוי סולמות ומודוסים</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 95%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.3s;
+            border: none;
+            border-radius: 5px;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .scale-button {
+            background-color: #4CAF50;
+            color: white;
+            width: calc(33% - 10px);
+            margin-bottom: 10px;
+        }
+        #instructions {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #666;
+        }
+        #piano {
+            width: 100%;
+            height: 120px;
+            margin-top: 20px;
+        }
+        .white-key {
+            fill: white;
+            stroke: black;
+            stroke-width: 1;
+        }
+        .black-key {
+            fill: black;
+        }
+        .scale-key {
+            fill: #4CAF50;
+            transition: fill 0.3s;
+        }
+        #preview-container {
+            display: block;
+        }
+        #game-play-container {
+            display: none;
+        }
+        .option-button {
+            background-color: #008CBA;
+            color: white;
+            width: calc(50% - 10px);
+            margin-bottom: 10px;
+        }
+        #score-info {
+            font-size: 1.2em;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+.popup.correct {
+    background-color: #4CAF50;
+}
+
+.popup.incorrect {
+    background-color: #f44336;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    10%, 90% { opacity: 1; }
+}
+</style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>זיהוי סולמות ומודוסים</h1>
+        <div id="preview-container">
+            <div id="instructions">האזן לסולם או למודוס והתבונן בתצוגת הפסנתר:</div>
+            <button id="play-major-scale" class="scale-button">סולם דו מז'ור</button>
+            <button id="play-minor-scale" class="scale-button">סולם לה מינור טבעי</button>
+            <button id="play-harmonic-minor-scale" class="scale-button">סולם לה מינור הרמוני</button>
+            <button id="play-melodic-minor-scale" class="scale-button">סולם לה מינור מלודי</button>
+            <button id="play-lydian-scale" class="scale-button">מודוס לידי (דו)</button>
+            <button id="play-phrygian-scale" class="scale-button">מודוס פריגי (לה)</button>
+            <button id="play-phrygian-dominant-scale" class="scale-button">מודוס פריגי דומיננטי (לה)</button>
+            <button id="play-dorian-scale" class="scale-button">מודוס דורי (לה)</button>
+            <button id="play-mixolydian-scale" class="scale-button">מודוס מיקסולידי (דו)</button>
+            <svg id="piano" viewBox="0 0 560 120">
+                <!-- White keys -->
+                <rect class="white-key" x="0" y="0" width="40" height="120" />
+                <rect class="white-key" x="40" y="0" width="40" height="120" />
+                <rect class="white-key" x="80" y="0" width="40" height="120" />
+                <rect class="white-key" x="120" y="0" width="40" height="120" />
+                <rect class="white-key" x="160" y="0" width="40" height="120" />
+                <rect class="white-key" x="200" y="0" width="40" height="120" />
+                <rect class="white-key" x="240" y="0" width="40" height="120" />
+                <rect class="white-key" x="280" y="0" width="40" height="120" />
+                <rect class="white-key" x="320" y="0" width="40" height="120" />
+                <rect class="white-key" x="360" y="0" width="40" height="120" />
+                <rect class="white-key" x="400" y="0" width="40" height="120" />
+                <rect class="white-key" x="440" y="0" width="40" height="120" />
+                <rect class="white-key" x="480" y="0" width="40" height="120" />
+                <rect class="white-key" x="520" y="0" width="40" height="120" />
+                <!-- Black keys -->
+                <rect class="black-key" x="25" y="0" width="30" height="80" />
+                <rect class="black-key" x="65" y="0" width="30" height="80" />
+                <rect class="black-key" x="145" y="0" width="30" height="80" />
+                <rect class="black-key" x="185" y="0" width="30" height="80" />
+                <rect class="black-key" x="225" y="0" width="30" height="80" />
+                <rect class="black-key" x="305" y="0" width="30" height="80" />
+                <rect class="black-key" x="345" y="0" width="30" height="80" />
+                <rect class="black-key" x="425" y="0" width="30" height="80" />
+                <rect class="black-key" x="465" y="0" width="30" height="80" />
+                <rect class="black-key" x="505" y="0" width="30" height="80" />
+            </svg>
+            <button id="start-game-button" class="scale-button">התחל משחק ניחושים</button>
+        </div>
+        <div id="game-play-container">
+            <div id="game-info">ניסיון <span id="attempt">1</span> מתוך 7</div>
+            <div id="instructions">האזן לסולם או למודוס ונסה לזהות אותו. בחר את התשובה הנכונה.</div>
+            <button id="play-scale-button" class="scale-button">השמע שוב</button>
+            <div id="options"></div>
+            <div id="score-info">ניקוד: <span id="score">0</span></div>
+        </div>
+    </div>
+
+    <script>
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const baseFrequency = 220; // A3
+
+            const playMajorScaleButton = document.getElementById('play-major-scale');
+            const playMinorScaleButton = document.getElementById('play-minor-scale');
+            const playHarmonicMinorScaleButton = document.getElementById('play-harmonic-minor-scale');
+            const playMelodicMinorScaleButton = document.getElementById('play-melodic-minor-scale');
+            const playLydianScaleButton = document.getElementById('play-lydian-scale');
+            const playPhrygianScaleButton = document.getElementById('play-phrygian-scale');
+            const playPhrygianDominantScaleButton = document.getElementById('play-phrygian-dominant-scale');
+            const playDorianScaleButton = document.getElementById('play-dorian-scale');
+            const playMixolydianScaleButton = document.getElementById('play-mixolydian-scale');
+
+            const pianoSVG = document.getElementById('piano');
+            const startGameButton = document.getElementById('start-game-button');
+            const previewContainer = document.getElementById('preview-container');
+            const gamePlayContainer = document.getElementById('game-play-container');
+
+            const majorScaleSteps = [0, 2, 4, 5, 7, 9, 11, 12];
+            const minorScaleSteps = [0, 2, 3, 5, 7, 8, 10, 12];
+            const harmonicMinorScaleSteps = [0, 2, 3, 5, 7, 8, 11, 12];
+            const melodicMinorScaleSteps = [0, 2, 3, 5, 7, 9, 11, 12];
+            const lydianScaleSteps = [0, 2, 4, 6, 7, 9, 11, 12];
+            const phrygianScaleSteps = [0, 1, 3, 5, 7, 8, 10, 12];
+            const phrygianDominantScaleSteps = [0, 1, 4, 5, 7, 8, 10, 12];
+            const dorianScaleSteps = [0, 2, 3, 5, 7, 9, 10, 12];
+            const mixolydianScaleSteps = [0, 2, 4, 5, 7, 9, 10, 12];
+
+            const scaleTypes = [
+                { name: 'סולם דו מז׳ור', steps: majorScaleSteps, root: 261.63, visualOffset: 0 },
+                { name: 'סולם לה מינור טבעי', steps: minorScaleSteps, root: 440, visualOffset: 5 },
+                { name: 'סולם לה מינור הרמוני', steps: harmonicMinorScaleSteps, root: 440, visualOffset: 5 },
+                { name: 'סולם לה מינור מלודי', steps: melodicMinorScaleSteps, root: 440, visualOffset: 5 },
+                { name: 'מודוס לידי (דו)', steps: lydianScaleSteps, root: 261.63, visualOffset: 0 },
+                { name: 'מודוס פריגי (לה)', steps: phrygianScaleSteps, root: 440, visualOffset: 5 },
+                { name: 'מודוס פריגי דומיננטי (לה)', steps: phrygianDominantScaleSteps, root: 440, visualOffset: 5 },
+                { name: 'מודוס דורי (לה)', steps: dorianScaleSteps, root: 440, visualOffset: 5 },
+                { name: 'מודוס מיקסולידי (דו)', steps: mixolydianScaleSteps, root: 261.63, visualOffset: 0 }
+            ];
+
+            let attempt = 1;
+            let score = 0;
+            let currentAnswer = '';
+
+            function createReverb() {
+                const convolver = audioContext.createConvolver();
+                const impulseLength = 0.7;
+                const impulse = audioContext.createBuffer(2, audioContext.sampleRate * impulseLength, audioContext.sampleRate);
+                for (let channel = 0; channel < impulse.numberOfChannels; channel++) {
+                    const impulseData = impulse.getChannelData(channel);
+                    for (let i = 0; i < impulseData.length; i++) {
+                        impulseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / impulseData.length, 2);
+                    }
+                }
+                convolver.buffer = impulse;
+                return convolver;
+            }
+
+            const reverb = createReverb();
+
+            function playEnhancedNote(frequency, startTime, duration = 0.5) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.type = 'triangle';
+                oscillator.frequency.setValueAtTime(frequency, startTime);
+
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(0.7, startTime + 0.01);
+                gainNode.gain.setValueAtTime(0.7, startTime + duration - 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(reverb);
+                reverb.connect(audioContext.destination);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + duration);
+            }
+
+            function highlightKey(index, visualOffset, scaleType) {
+                const whiteKeys = document.querySelectorAll('.white-key');
+                const blackKeys = document.querySelectorAll('.black-key');
+
+                let keyIndex = index + visualOffset;
+
+                function highlightSpecificBlackKey(blackKeyIndex) {
+                    if (blackKeyIndex >= 0 && blackKeyIndex < blackKeys.length) {
+                        blackKeys[blackKeyIndex].classList.add('scale-key');
+                        return true;
+                    }
+                    return false;
+                }
+
+                switch(scaleType) {
+                    case 'major':
+                    case 'natural':
+                        whiteKeys[keyIndex].classList.add('scale-key');
+                        break;
+                    case 'harmonic':
+                        if (index === 6) {
+                            highlightSpecificBlackKey(3 + Math.floor(keyIndex / 7) * 5);
+                        } else if (index === 7) {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        } else {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        }
+                        break;
+                    case 'melodic':
+                        if (index === 5) {
+                            highlightSpecificBlackKey(2 + Math.floor(keyIndex / 7) * 5);
+                        } else if (index === 6) {
+                            highlightSpecificBlackKey(3 + Math.floor(keyIndex / 7) * 5);
+                        } else if (index === 7) {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        } else {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        }
+                        break;
+                    case 'lydian':
+                        if (index === 3) {
+                            highlightSpecificBlackKey(2 + Math.floor(keyIndex / 7) * 5);
+                        } else {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        }
+                        break;
+                    case 'mixolydian':
+                        if (index === 6) {
+                            highlightSpecificBlackKey(4 + Math.floor(keyIndex / 7) * 5);
+                        } else {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        }
+                        break;
+                    case 'dorian':
+                        if (index === 5) {
+                            highlightSpecificBlackKey(2 + Math.floor(keyIndex / 7) * 5);
+                        } else {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        }
+                        break;
+                    case 'phrygian':
+                        if (index === 1) {
+                            highlightSpecificBlackKey(4 + Math.floor((keyIndex - 1) / 7) * 5);
+                        } else {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        }
+                        break;
+                    case 'phrygian-dominant':
+                        if (index === 1) {
+                            highlightSpecificBlackKey(4 + Math.floor((keyIndex - 1) / 7) * 5);
+                        } else if (index === 2) {
+                            highlightSpecificBlackKey(Math.floor(keyIndex / 7) * 5);
+                        } else {
+                            whiteKeys[keyIndex].classList.add('scale-key');
+                        }
+                        break;
+                    default:
+                        whiteKeys[keyIndex].classList.add('scale-key');
+                        break;
+                }
+            }
+
+            function resetKeys() {
+                const keys = document.querySelectorAll('.white-key, .black-key');
+                keys.forEach(key => key.classList.remove('scale-key'));
+            }
+
+            function playScale(scaleSteps, startNote, visualOffset, scaleType) {
+                const now = audioContext.currentTime;
+                resetKeys();
+                scaleSteps.forEach((step, index) => {
+                    const frequency = startNote * Math.pow(2, step / 12);
+                    playEnhancedNote(frequency, now + index * 0.5, 0.4);
+                    setTimeout(() => highlightKey(index, visualOffset, scaleType), index * 500);
+                });
+            }
+
+            playMajorScaleButton.addEventListener('click', () => playScale(majorScaleSteps, 261.63, 0, 'major'));
+            playMinorScaleButton.addEventListener('click', () => playScale(minorScaleSteps, 440, 5, 'natural'));
+            playHarmonicMinorScaleButton.addEventListener('click', () => playScale(harmonicMinorScaleSteps, 440, 5, 'harmonic'));
+            playMelodicMinorScaleButton.addEventListener('click', () => playScale(melodicMinorScaleSteps, 440, 5, 'melodic'));
+            playLydianScaleButton.addEventListener('click', () => playScale(lydianScaleSteps, 261.63, 0, 'lydian'));
+            playPhrygianScaleButton.addEventListener('click', () => playScale(phrygianScaleSteps, 440, 5, 'phrygian'));
+            playPhrygianDominantScaleButton.addEventListener('click', () => playScale(phrygianDominantScaleSteps, 440, 5, 'phrygian-dominant'));
+            playDorianScaleButton.addEventListener('click', () => playScale(dorianScaleSteps, 440, 5, 'dorian'));
+            playMixolydianScaleButton.addEventListener('click', () => playScale(mixolydianScaleSteps, 261.63, 0, 'mixolydian'));
+
+            startGameButton.addEventListener('click', startGame);
+
+            function startGame() {
+                previewContainer.style.display = 'none';
+                gamePlayContainer.style.display = 'block';
+                attempt = 1;
+                score = 0;
+                updateDisplay();
+                generateNewScale();
+            }
+
+            function generateNewScale() {
+                currentAnswer = scaleTypes[Math.floor(Math.random() * scaleTypes.length)];
+                playScale(currentAnswer.steps, currentAnswer.root, 0, '');
+            }
+
+           function checkAnswer(guess) {
+    if (guess === currentAnswer.name) {
+        score++;
+        showPopup('נכון! כל הכבוד!', true);
+    } else {
+        showPopup(`טעות. התשובה הנכונה היתה ${currentAnswer.name}`, false);
+    }
+
+    attempt++;
+    updateDisplay();
+}
+function showPopup(message, isCorrect) {
+    const popup = document.createElement('div');
+    popup.className = `popup ${isCorrect ? 'correct' : 'incorrect'}`;
+    popup.textContent = message;
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        popup.remove();
+        if (attempt > 7) {
+            endGame();
+        } else {
+            generateNewScale();
+        }
+    }, 2000);
+}
+            function updateDisplay() {
+                document.getElementById('attempt').textContent = attempt;
+                document.getElementById('score').textContent = score;
+            }
+
+            function endGame() {
+                const totalAttempts = 7;
+                const finalScore = score;
+                const successRate = (finalScore / totalAttempts) * 100;
+
+                let message = `המשחק הסתיים! הניקוד הסופי שלך: ${finalScore} מתוך ${totalAttempts}\n`;
+                message += `אחוז הצלחה: ${successRate.toFixed(1)}%\n\n`;
+
+                if (successRate >= 90) {
+                    message += "מדהים! יש לך שמיעה מוזיקלית מצוינת!";
+                } else if (successRate >= 70) {
+                    message += "כל הכבוד! השמיעה המוזיקלית שלך טובה מאוד.";
+                } else if (successRate >= 50) {
+                    message += "לא רע! עם קצת אימון תוכל/י להשתפר עוד.";
+                } else {
+                    message += "אל דאגה, עם אימון קבוע השמיעה המוזיקלית שלך תשתפר!";
+                }
+
+                alert(message);
+                previewContainer.style.display = 'block';
+                gamePlayContainer.style.display = 'none';
+            }
+
+            const optionsContainer = document.getElementById('options');
+            scaleTypes.forEach(scale => {
+                const button = document.createElement('button');
+                button.textContent = scale.name;
+                button.classList.add('option-button');
+                button.addEventListener('click', () => checkAnswer(scale.name));
+                optionsContainer.appendChild(button);
+            });
+
+            document.getElementById('play-scale-button').addEventListener('click', () => {
+                playScale(currentAnswer.steps, currentAnswer.root, 0, '');
+            });
+        </script>
+        </body>
+        </html>
